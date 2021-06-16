@@ -6,14 +6,16 @@ const form = document.getElementById('form')
 const text = document.getElementById('text')
 const amount = document.getElementById('amount')
 
-const dummyTransactions = [
-    { id: 1, text: 'flowers', amount: -20 },
-    { id: 2, text: 'Salary', amount: 300 },
-    { id: 3, text: 'Book', amount: -10 },
-    { id: 4, text: 'Camera', amount: 150 }
-];
+// const dummyTransactions = [
+//     { id: 1, text: 'flowers', amount: -20 },
+//     { id: 2, text: 'Salary', amount: 300 },
+//     { id: 3, text: 'Book', amount: -10 },
+//     { id: 4, text: 'Camera', amount: 150 }
+// ];
 
-let transactions = dummyTransactions
+const localStorageTransactions = JSON.parse(localStorage.getItem(`transactions`))
+
+let transactions = localStorage.getItem('transactions') !== null ? localStorageTransactions : []
 
 //add transactions to DOM list 
 function addTransactionDOM(transaction) {
@@ -46,10 +48,7 @@ function updateValues() {
         .reduce((acc, item) => (acc += item), 0)
         .toFixed(2)
 
-    const expense = (amounts
-        .filter(amount => amount <= 0)
-        .reduce((acc, item) => (acc += item), 0) * -1)
-        .toFixed(2)
+    const expense = (amounts.filter(amount => amount <= 0).reduce((acc, item) => (acc += item), 0) * -1).toFixed(2)
 
     const balanceTotal = +total
 
@@ -79,6 +78,8 @@ function addTransaction(e) {
 
         updateValues()
 
+        updateLocalStorage()
+
         text.value = ``
         amount.value = ``
     }
@@ -87,6 +88,12 @@ function addTransaction(e) {
 //function to make ID
 function makeID() {
     return Math.floor(Math.random() * 1000000000)
+}
+
+//update local storage
+function updateLocalStorage () {
+    localStorage.setItem('transactions', JSON.stringify(transactions)) 
+    
 }
 
 //init app
@@ -99,6 +106,8 @@ function init() {
 //remove item from transaction history
 function removeTransaction(id) {
     transactions = transactions.filter(transaction => transaction.id !== id)
+
+    updateLocalStorage()
 
     init()
 }
